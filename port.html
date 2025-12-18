@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rishita Baranwal - Graphic Designer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --dark-bg: #0a0a0f;
+            --dark-secondary: #1a1a2e;
+            --accent-primary: #ff6b9d;
+            --accent-secondary: #c471ed;
+            --accent-tertiary: #12c2e9;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #b8b8c8;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Three.js Canvas Background */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Island Navbar */
+        nav {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            padding: 15px 30px;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        nav a:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        nav a.active {
+            color: var(--accent-primary);
+            background: rgba(255, 107, 157, 0.1);
+        }
+
+        nav a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+        }
+
+        /* Section Styles */
+        section {
+            min-height: 100vh;
+            padding: 100px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Hero Section */
+        #home {
+            text-align: center;
+        }
+
+        .hero-content h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero-content h2 {
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            color: var(--text-secondary);
+            font-weight: 300;
+            margin-bottom: 15px;
+            animation: fadeInUp 1.2s ease;
+        }
+
+        .hero-content p {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            animation: fadeInUp 1.4s ease;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1.6s ease;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 107, 157, 0.5);
+        }
+
+        .btn-secondary {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            color: var(--text-primary);
+            border: 2px solid var(--glass-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-primary);
+        }
+
+        /* About Section */
+        #about {
+            background: linear-gradient(180deg, transparent, rgba(26, 26, 46, 0.3));
+        }
+
+        .about-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .profile-container {
+            position: relative;
+        }
+
+        .profile-image {
+            width: 100%;
+            max-width: 350px;
+            aspect-ratio: 1;
+            border-radius: 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            padding: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s ease;
+            overflow: hidden;
+        }
+
+        .profile-image:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 80px rgba(255, 107, 157, 0.3);
+        }
+
+        .profile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 20px;
+        }
+
+        .about-content h2 {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .about-content h3 {
+            font-size: 1.5rem;
+            color: var(--accent-secondary);
+            margin-bottom: 15px;
+        }
+
+        .about-content p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .highlight {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        /* Projects Section */
+        #projects {
+            background: linear-gradient(180deg, rgba(26, 26, 46, 0.3), transparent);
+        }
+
+        .project-category {
+            margin-bottom: 80px;
+        }
+
+        .project-category:last-child {
+            margin-bottom: 0;
+        }
+
+        .category-title {
+            font-size: 2rem;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+        }
+
+        .section-title {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            text-align: center;
+            margin-bottom: 60px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gallery-wrapper {
+            position: relative;
+            overflow: hidden;
+            padding: 20px 0;
+        }
+
+        .gallery-container {
+            display: flex;
+            gap: 30px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 20px 0;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-primary) var(--dark-secondary);
+        }
+
+        .gallery-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .gallery-container::-webkit-scrollbar-track {
+            background: var(--dark-secondary);
+            border-radius: 10px;
+        }
+
+        .gallery-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 10px;
+        }
+
+        /* ================= POSTER GALLERY START ================= */
+        .poster-card {
+            min-width: 400px;
+            height: 500px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .poster-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(196, 113, 237, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .poster-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            border-color: var(--accent-primary);
+            box-shadow: 0 30px 60px rgba(255, 107, 157, 0.4);
+        }
+
+        .poster-card:hover::before {
+            opacity: 1;
+        }
+
+        .poster-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .poster-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.2), rgba(196, 113, 237, 0.2));
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* ================= POSTER GALLERY END ================= */
+
+        /* Modal for Poster Zoom */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+            animation: zoomIn 0.4s ease;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: 10px;
+            box-shadow: 0 30px 100px rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            color: white;
+            font-size: 28px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--accent-primary);
+            transform: rotate(90deg);
+        }
+
+        /* Skills Section */
+        #skills {
+            background: linear-gradient(180deg, transparent, rgba(26, 26, 46, 0.3));
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .skill-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-primary);
+            box-shadow: 0 20px 50px rgba(255, 107, 157, 0.3);
+        }
+
+        .skill-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .skill-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .skill-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .skill-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Contact Section */
+        #contact {
+            background: linear-gradient(180deg, rgba(26, 26, 46, 0.3), var(--dark-bg));
+        }
+
+        .contact-container {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .contact-links {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        /* ================= ADD YOUR CONTACT LINKS HERE ================= */
+        .contact-link {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .contact-link:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-primary);
+            box-shadow: 0 20px 50px rgba(255, 107, 157, 0.4);
+        }
+
+        .contact-link span {
+            position: absolute;
+            bottom: -30px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .contact-link:hover span {
+            opacity: 1;
+            bottom: -35px;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            nav ul {
+                gap: 15px;
+            }
+
+            nav a {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+
+            .about-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+            }
+
+            .project-category {
+                margin-bottom: 60px;
+            }
+
+            .category-title {
+                font-size: 1.5rem;
+                margin-bottom: 30px;
+            }
+
+            .poster-card {
+                min-width: 300px;
+                height: 400px;
+            }
+
+            .skills-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 600px) {
+            section {
+                padding: 80px 5%;
+            }
+
+            nav {
+                padding: 12px 20px;
+            }
+
+            nav ul {
+                gap: 10px;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .project-category {
+                margin-bottom: 50px;
+            }
+
+            .category-title {
+                font-size: 1.3rem;
+                margin-bottom: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Three.js Canvas -->
+    <div id="canvas-container"></div>
+
+    <!-- Island Navbar -->
+    <nav id="navbar">
+        <ul>
+            <li><a href="#home" class="nav-link active">Home</a></li>
+            <li><a href="#about" class="nav-link">About Me</a></li>
+            <li><a href="#projects" class="nav-link">Projects</a></li>
+            <li><a href="#skills" class="nav-link">Skills</a></li>
+            <li><a href="#contact" class="nav-link">Contact Me</a></li>
+        </ul>
+    </nav>
+
+    <!-- Home Section -->
+    <section id="home">
+        <div class="hero-content">
+            <h1>Rishita Baranwal</h1>
+            <h2>Graphic Designer | Social Media Handler | Creator </h2>
+            <p>Crafting compelling visual stories that resonate, inspire, and elevate brands to new heights</p>
+            <div class="cta-buttons">
+                <a href="#projects" class="btn btn-primary">View Projects</a>
+                <a href="#contact" class="btn btn-secondary">Contact Me</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="container">
+            <div class="about-container">
+                <div class="profile-container">
+                    <div class="profile-image">
+                        <!-- ================= ADD YOUR PROFILE IMAGE HERE ================= -->
+                        <img src="MYPIC.jpeg"
+                            alt="Rishita Baranwal Profile">
+                        <!-- Replace the src above with your actual photo -->
+                    </div>
+                </div>
+                <div class="about-content">
+                    <h2>Who I Am</h2>
+                    <h3>Rishita Baranwal</h3>
+                    <p>
+                        I'm a passionate <span class="highlight">Graphic Designer</span> currently pursuing B.Tech in
+                        <span class="highlight">Electronics & Communication Engineering</span> at
+                        <span class="highlight">Heritage Institute of Technology</span>. With over
+                        <span class="highlight">1.5+ years of experience</span> in the design world, I've discovered
+                        my true calling in bringing brands to life through <span class="highlight">visual storytelling.</span>
+                    </p>
+                    <p>
+                        My expertise lies in <span class="highlight">branding and visual identity</span>, where I
+                        transform
+                        abstract ideas into tangible, memorable experiences. From poster designs that command attention
+                        to
+                        social media creatives that drive engagement, I believe every pixel has a purpose and every
+                        color
+                        tells a story.
+                    </p>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects">
+        <div class="container">
+            <h2 class="section-title">Featured Projects</h2>
+
+            <!-- Promotional Posters -->
+            <div class="project-category">
+                <h3 class="category-title">Promotional Posters</h3>
+                <div class="gallery-wrapper">
+                    <div class="gallery-container">
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="burger.jpeg" alt="Burger Promotion">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="cloth.jpeg" alt="Coke Studio Promotion">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="Grey Green Minimalist Perfume.png" alt="Perfume Promotion">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="cofee.png" alt="Perfume Promotion">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rebranding -->
+            <div class="project-category">
+                <h3 class="category-title">Rebranding</h3>
+                <div class="gallery-wrapper">
+                    <div class="gallery-container">
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="nike.jpeg" alt="Nike Rebrand">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="coke.jpeg" alt="Coke Promotion">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="cokestudio.jpeg" alt="Coke Promotion">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="Screenshot 2025-12-17 205544.png" alt="AI Generated Poster">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Posters using AI -->
+            <div class="project-category">
+                <h3 class="category-title">Posters using AI</h3>
+                <div class="gallery-wrapper">
+                    <div class="gallery-container">
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="perfume.png" alt="Perfume Promotion">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="croissant.png" alt="AI Generated Croissant Poster">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="ai.png" alt="AI Generated Croissant Poster">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="drink.png" alt="AI Generated Croissant Poster">
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <!-- InstagramPosts -->
+            <div class="project-category">
+                <h3 class="category-title">Instagram Posts</h3>
+                <div class="gallery-wrapper">
+                    <div class="gallery-container">
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="p1.jpeg" alt="Perfume Promotion">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="p2.jpeg" alt="AI Generated Croissant Poster">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="p4.jpeg" alt="AI Generated Croissant Poster">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="p3.jpeg" alt="AI Generated Croissant Poster">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="p5.jpeg" alt="AI Generated Croissant Poster">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="p6.jpeg" alt="AI Generated Croissant Poster">
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+
+             <!-- InternPosts -->
+            <div class="project-category">
+                <h3 class="category-title">Internship Project (E-Cell, IIT'B)</h3>
+                <div class="gallery-wrapper">
+                    <div class="gallery-container">
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="i1.png" alt="Perfume Promotion">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="i2.png" alt="AI Generated Croissant Poster">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="i3.png" alt="AI Generated Croissant Poster">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="i4.png" alt="AI Generated Croissant Poster">
+                        </div>
+                        <div class="poster-card" onclick="openModal(this)">
+                            <img src="i5.png" alt="AI Generated Croissant Poster">
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal for Enlarged Poster -->
+    <div class="modal" id="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-close" onclick="closeModal()">×</div>
+            <img id="modal-image" src="" alt="Enlarged Poster">
+        </div>
+    </div>
+
+    <!-- Skills Section -->
+    <section id="skills">
+        <div class="container">
+            <h2 class="section-title">Skills & Expertise</h2>
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <div class="skill-icon">🎨</div>
+                    <h3>Branding & Visual Identity</h3>
+                    <p>Creating cohesive brand systems that tell your unique story</p>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-icon">📊</div>
+                    <h3>Poster Design</h3>
+                    <p>Captivating designs that command attention and drive action</p>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-icon">📱</div>
+                    <h3>Social Media Creatives</h3>
+                    <p>Engaging visuals optimized for digital platforms</p>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-icon">🖼️</div>
+                    <h3>UI Layout Design</h3>
+                    <p>Clean, intuitive interfaces that enhance user experience</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <div class="container">
+            <div class="contact-container">
+                <h2 class="section-title">Let's Connect</h2>
+                <p style="color: var(--text-secondary); font-size: 1.2rem; margin-bottom: 20px;">
+                    Have a project in mind? Let's create something amazing together.
+                </p>
+
+                <!-- ================= ADD YOUR CONTACT LINKS HERE ================= -->
+                <div class="contact-links">
+                    <!-- LinkedIn -->
+                    <a href="http://www.linkedin.com/in/rishita-baranwal" class="contact-link" target="_blank" rel="noopener">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                        </svg>
+                        <span>LinkedIn</span>
+                    </a>
+
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/rishita.creates?igsh=Y2NoNTRiMGRpejFk" class="contact-link" target="_blank" rel="noopener">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919
+  .058 1.265.069 1.645.069 4.849
+  0 3.205-.012 3.584-.069 4.849
+  -.149 3.225-1.664 4.771-4.919 4.919
+  -1.266.058-1.644.07-4.85.07
+  -3.204 0-3.584-.012-4.849-.07
+  -3.26-.149-4.771-1.699-4.919-4.92
+  -.058-1.265-.07-1.644-.07-4.849
+  0-3.204.013-3.583.07-4.849
+  .149-3.227 1.664-4.771 4.919-4.919
+  1.266-.057 1.645-.069 4.849-.069zm0
+  -2.163c-3.259 0-3.667.014-4.947.072
+  -4.358.2-6.78 2.618-6.98 6.98
+  -.059 1.281-.073 1.689-.073 4.948
+  0 3.259.014 3.668.072 4.948
+  .2 4.358 2.618 6.78 6.98 6.98
+  1.281.058 1.689.072 4.948.072
+  3.259 0 3.668-.014 4.948-.072
+  4.354-.2 6.782-2.618 6.979-6.98
+  .059-1.28.073-1.689.073-4.948
+  0-3.259-.014-3.667-.072-4.947
+  -.196-4.354-2.617-6.78-6.979-6.98
+  -1.281-.059-1.69-.073-4.949-.073zm0
+  5.838a5.999 5.999 0 1 0 0 11.998
+  5.999 5.999 0 0 0 0-11.998zm0
+  9.835a3.836 3.836 0 1 1 0-7.672
+  3.836 3.836 0 0 1 0 7.672zm6.406
+  -10.845a1.44 1.44 0 1 1-2.88 0
+  1.44 1.44 0 0 1 2.88 0z" />
+                        </svg>
+                        <span>Instagram</span>
+                    </a>
+
+                    <!-- Gmail -->
+                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=rishitawork15@gmail.com" class="contact-link" target="_blank" rel="noopener">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                        </svg>
+                        <span>Gmail</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Three.js Background Animation
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Create particles
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 1000;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for (let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 10;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.005,
+            color: 0xff6b9d,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        camera.position.z = 3;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            particlesMesh.rotation.x += 0.0005;
+            particlesMesh.rotation.y += 0.0005;
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Modal functionality
+        function openModal(element) {
+            const modal = document.getElementById('modal');
+            const modalImg = document.getElementById('modal-image');
+            const img = element.querySelector('img');
+            modalImg.src = img.src;
+            modalImg.alt = img.alt;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                const offsetTop = targetSection.offsetTop - 80; // Adjust for navbar height
+
+                window.scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Update active nav link on scroll
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            let current = '';
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                if (pageYOffset >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements for animation
+        document.querySelectorAll('.poster-card, .skill-card, .contact-link').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
